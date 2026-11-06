@@ -507,18 +507,6 @@ addEventListener('touchend', queuePick, { passive: true });
 setInterval(queuePick, 1000);
 pickClip();
 
-// Temporary: add ?debug to the address to see what each video is doing on a real phone.
-if (location.search.includes('debug')) {
-  const name = v => (v.dataset.src || '').split('/').pop().replace('.mp4', '').slice(0, 9);
-  const box = document.createElement('div'), log = [];
-  box.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:99;font:11px/1.3 monospace;background:#000d;color:#0f0;padding:6px;white-space:pre-wrap';
-  document.body.append(box);
-  vids.forEach(v => ['playing', 'pause', 'stalled', 'error'].forEach(e => v.addEventListener(e, () => { log.push(name(v) + ':' + e); log.splice(0, log.length - 6); })));
-  const play = HTMLMediaElement.prototype.play;
-  HTMLMediaElement.prototype.play = function () { const p = play.call(this); p && p.catch(e => { log.push(name(this) + ' REJECT ' + e.name); log.splice(0, log.length - 6); }); return p; };
-  setInterval(() => { box.textContent = vids.map(v => name(v) + ' ' + (v.paused ? 'paused' : 'PLAYING') + ' ready' + v.readyState + ' t' + v.currentTime.toFixed(1) + (v.src ? '' : ' unloaded') + (v.error ? ' ERR' + v.error.code : '')).join('\n') + '\n' + log.join(' '); }, 300);
-}
-
 // Clockwork's dial reads the viewer's own time.
 const now = document.getElementById('now');
 const tick = () => {
