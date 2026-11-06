@@ -1,6 +1,6 @@
 # watchpinball.com
 
-The website for Watch Pinball: Wrist Arcade, an Apple Watch game by Attic Studio. Plain HTML hosted on GitHub Pages. `index.html` is the whole site, with its CSS and script inline and no build step.
+The website for Watch Pinball: Wrist Arcade, an Apple Watch game by Beautiful Distraction. Plain HTML hosted on GitHub Pages. `index.html` is the whole site, with its CSS and script inline and no build step.
 
 ## Release state
 
