@@ -4,7 +4,7 @@ The website for Watch Pinball: Wrist Arcade, an Apple Watch game by Attic Studio
 
 ## Release state
 
-`<body data-release="pre">` is the state before version 1.1: four tables, with Clockwork marked coming soon. Change it to `data-release="live"` once 1.1 is on the App Store, and check the copy against the live listing first.
+`<body data-release="live">` shows all five tables. It was switched on 6 November 2026, while 1.1 was in review, because the App Store listing only links here from 1.1. `data-release="pre"` brings back four tables with Clockwork marked coming soon.
 
 Before sharing the site publicly, remove `<meta name="robots" content="noindex">`.
 
