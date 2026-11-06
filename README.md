@@ -15,6 +15,7 @@ Before sharing the site publicly, remove `<meta name="robots" content="noindex">
 - `assets/film`: the wrist film, made with `tools/transcode.swift`. The current cut is a temporary placeholder.
 - `assets/download-on-the-app-store.svg`: Apple's official badge, unmodified. Use one per page.
 - `assets/apple-watch-ultra-4.png`: Apple's official product bezel, used as supplied. Don't crop, tilt, shadow or overlay it.
+- `assets/logos`: each table's own logo, rendered large and transparent by `tools/logos.swift`.
 - `assets/fonts`: Big Shoulders Display and Hanken Grotesk, under the SIL Open Font License 1.1.
 
 If a table's art changes shape, re-trace its outline with `tools/arches.py`.
