@@ -236,10 +236,12 @@ body[data-release="pre"] .only-live{display:none}
 /* Footer: details on the left, a smaller App Store button bottom right. */
 .foot .wrap{grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:20px clamp(24px,5vw,64px)}
 .foot-main{display:grid;gap:16px;min-width:0}
-.store-small{padding:13px 24px;font-size:16px;white-space:nowrap}
+.maker{display:block;transition:transform .2s}
+.maker:hover{transform:rotate(2deg) scale(1.04)}
+.maker img{display:block;width:clamp(170px,16vw,214px);height:auto}
 @media (max-width:900px){
   .foot .wrap{grid-template-columns:minmax(0,1fr)}
-  .store-small{justify-self:start}
+  .maker{justify-self:start}
 }
 .controls h2{text-align:center}
 
@@ -442,7 +444,7 @@ body[data-release="pre"] .only-live{display:none}
     <p class="legal">© 2026 Beautiful Distraction. Watch Pinball is not made or endorsed by Apple. Apple, the Apple logo, <span class="nb">Apple Watch</span>, <span class="nb">Apple Watch Ultra</span> and <span class="nb">Digital Crown</span> are trademarks of Apple Inc., registered in the U.S. and other countries. App Store is a service mark of Apple Inc., registered in the U.S. and other countries.</p>
     <p class="legal">This site uses no cookies or analytics.</p>
     </div>
-    <a class="store store-small" href="https://apps.apple.com/app/id6822812366">View on the App Store</a>
+    <a class="maker" href="https://beautifuldistraction.com/"><img src="assets/beautiful-distraction.png" alt="Beautiful Distraction" width="213" height="89"></a>
   </div>
 </footer>
 
