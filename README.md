@@ -10,7 +10,7 @@ The website for Watch Pinball: Wrist Arcade, an Apple Watch game by Beautiful Di
 
 - `assets/tables`: full table art from the game's headless harness (`SKINPNG=dir MINUTES=0 ./pinsim all 1`), saved as JPEG.
 - `assets/clips`: gameplay loops from `tools/clips.swift`, played by the game's bot.
-- `assets/film`: the wrist film, the wide render of the 1.1 edit (`tools/promo-cut` in the game repo), made with `tools/transcode.swift`. It has no captions.
+- `assets/film`: `clip.mp4` is the 37-second vertical cut with captions, for pitches and press. `film.mp4` is the wrist film, the wide render of the 1.1 edit (`tools/promo-cut` in the game repo), made with `tools/transcode.swift`. It has no captions.
 - `assets/download-on-the-app-store.svg`: Apple's official badge, unmodified. Use one per page.
 - `assets/apple-watch-ultra-4.png`: Apple's official product bezel, used as supplied. Don't crop, tilt, shadow or overlay it.
 - `assets/logos`: each table's own logo, rendered large and transparent by `tools/logos.swift`.
