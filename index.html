@@ -406,7 +406,7 @@ body[data-release="pre"] .only-live{display:none}
     <svg class="dmd dmd-tiny" style="--cols:30" viewBox="0 0 300 90" role="img" aria-label="About 4 MB"><defs><pattern id="d58435" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="3.4" class="dmd-off"/></pattern></defs><rect width="100%" height="100%" fill="url(#d58435)"/><g class="dmd-on"><g fill="#ffffff"><circle cx="35" cy="45" r="4"/><circle cx="35" cy="55" r="4"/></g><g fill="#ffffff"><circle cx="45" cy="35" r="4"/><circle cx="45" cy="55" r="4"/></g><g fill="#ffffff"><circle cx="55" cy="25" r="4"/><circle cx="55" cy="55" r="4"/></g><g fill="#ffffff"><circle cx="65" cy="15" r="4"/><circle cx="65" cy="25" r="4"/><circle cx="65" cy="35" r="4"/><circle cx="65" cy="45" r="4"/><circle cx="65" cy="55" r="4"/><circle cx="65" cy="65" r="4"/><circle cx="65" cy="75" r="4"/></g><g fill="#ffffff"><circle cx="75" cy="55" r="4"/></g><g fill="#ffffff"><circle cx="155" cy="15" r="4"/><circle cx="155" cy="25" r="4"/><circle cx="155" cy="35" r="4"/><circle cx="155" cy="45" r="4"/><circle cx="155" cy="55" r="4"/><circle cx="155" cy="65" r="4"/><circle cx="155" cy="75" r="4"/></g><g fill="#ffffff"><circle cx="165" cy="25" r="4"/></g><g fill="#ffffff"><circle cx="175" cy="35" r="4"/><circle cx="175" cy="45" r="4"/></g><g fill="#ffffff"><circle cx="185" cy="25" r="4"/></g><g fill="#ffffff"><circle cx="195" cy="15" r="4"/><circle cx="195" cy="25" r="4"/><circle cx="195" cy="35" r="4"/><circle cx="195" cy="45" r="4"/><circle cx="195" cy="55" r="4"/><circle cx="195" cy="65" r="4"/><circle cx="195" cy="75" r="4"/></g><g fill="#ffffff"><circle cx="215" cy="15" r="4"/><circle cx="215" cy="25" r="4"/><circle cx="215" cy="35" r="4"/><circle cx="215" cy="45" r="4"/><circle cx="215" cy="55" r="4"/><circle cx="215" cy="65" r="4"/><circle cx="215" cy="75" r="4"/></g><g fill="#ffffff"><circle cx="225" cy="15" r="4"/><circle cx="225" cy="45" r="4"/><circle cx="225" cy="75" r="4"/></g><g fill="#ffffff"><circle cx="235" cy="15" r="4"/><circle cx="235" cy="45" r="4"/><circle cx="235" cy="75" r="4"/></g><g fill="#ffffff"><circle cx="245" cy="15" r="4"/><circle cx="245" cy="45" r="4"/><circle cx="245" cy="75" r="4"/></g><g fill="#ffffff"><circle cx="255" cy="25" r="4"/><circle cx="255" cy="35" r="4"/><circle cx="255" cy="55" r="4"/><circle cx="255" cy="65" r="4"/></g></g></svg>
     <div>
       <h2>A whole arcade in under 4&nbsp;MB</h2>
-      <p>Every table is drawn in code and every sound is synthesised. Apart from its icon, the game has no image files at all. The five gameplay clips on this page add up to nearly three times the size of the game.</p>
+      <p>Every table is drawn in code and every sound is synthesised. Apart from its icon, the game has no image files at all. The five gameplay clips on this page add up to about three times the size of the game.</p>
     </div>
   </div>
 </section>
@@ -450,6 +450,26 @@ body[data-release="pre"] .only-live{display:none}
 
 <script>const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// On phones, words on the dot-matrix text sit closer together. Their dots are moved, not redrawn:
+// each gap loses three columns and the display gets narrower to match. The stacked headline keeps
+// its width so both lines share one grid, and is centred instead.
+if (matchMedia('(max-width:900px)').matches) {
+  for (const svg of document.querySelectorAll('svg.dmd')) {
+    const dots = [...svg.querySelectorAll('.dmd-on circle')];
+    const columns = [...new Set(dots.map(d => +d.getAttribute('cx')))].sort((a, b) => a - b);
+    const shift = new Map();
+    let cut = 0;
+    columns.forEach((x, i) => { if (i && x - columns[i - 1] > 50) cut += 30; shift.set(x, cut); });
+    if (!cut) continue;
+    const [, , w, h] = svg.getAttribute('viewBox').split(' ').map(Number);
+    const stacked = svg.closest('.dmd-stack');
+    const left = columns[0], right = columns[columns.length - 1] - cut;
+    const centre = stacked ? Math.round((w - right - left) / 20) * 10 : 0;
+    for (const d of dots) { const x = +d.getAttribute('cx'); d.setAttribute('cx', x - shift.get(x) + centre); }
+    if (!stacked) svg.setAttribute('viewBox', `0 0 ${w - cut} ${h}`);
+  }
+}
+
 // The logo is lit by default. Timers light it column by column, like a real dot-matrix display.
 if (!calm) {
   const cols = [...document.querySelectorAll('.dmd-logo .dmd-on g')];
@@ -477,9 +497,11 @@ let filmHeld = false, ourPause = false;
 film.addEventListener('pause', () => { if (ourPause) ourPause = false; else if (!film.ended && !document.hidden) filmHeld = true; });
 film.addEventListener('play', () => { filmHeld = false; });
 
+// iPhones race through the first moments of a clip if it starts during a scroll, while the page is
+// still loading, or as the last clip is being released. So clips start once things have gone quiet.
+let ready = false, settle = 0, starter = 0;
 const pickClip = () => {
-  queued = false;
-  if (calm) return;
+  if (calm || !ready) return;
   const middle = innerHeight / 2;
   let best = null, gap = Infinity;
   for (const v of vids) {
@@ -489,24 +511,34 @@ const pickClip = () => {
     const d = Math.abs((r.top + r.bottom) / 2 - middle);
     if (d < gap) { best = v; gap = d; }
   }
+  let freed = false;
   for (const v of vids) {
     if (v === best) continue;
     if (!v.paused) { if (v === film) ourPause = true; v.pause(); }
+    if (v !== film && v.src) freed = true;
     release(v);
   }
+  clearTimeout(starter);
   if (best && best.paused && !(best === film && filmHeld)) {
-    load(best);
-    if (best !== film) best.muted = true;
-    best.play().catch(() => {});
+    starter = setTimeout(() => {
+      load(best);
+      if (best !== film) best.muted = true;
+      best.play().catch(() => {});
+    }, freed ? 120 : 0);
   }
 };
-let queued = false;
-const queuePick = () => { if (!queued) { queued = true; requestAnimationFrame(pickClip); } };
+const queuePick = () => { clearTimeout(settle); settle = setTimeout(pickClip, 150); };
 addEventListener('scroll', queuePick, { passive: true });
 addEventListener('resize', queuePick);
 addEventListener('touchend', queuePick, { passive: true });
-setInterval(queuePick, 1000);
-pickClip();
+const begin = () => {
+  if (ready) return;
+  ready = true;
+  queuePick();
+  setInterval(queuePick, 1000);
+};
+addEventListener('load', begin);
+setTimeout(begin, 2000);
 
 // Clockwork's dial reads the viewer's own time.
 const now = document.getElementById('now');
